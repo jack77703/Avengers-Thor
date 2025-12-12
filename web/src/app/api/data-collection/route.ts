@@ -14,24 +14,24 @@ import {
 } from '@/lib/finnhub-comprehensive';
 import { saveBatchOHLCVData } from '@/lib/ohlcv';
 import { getFinnhubQuote } from '@/lib/finnhub';
-import { getTrendingStocks, type StockTwitsSymbol } from '@/lib/stocktwits';
+import { getTrendingStocks, type StockTwitsSymbol, type StockTwitsTrendingResponse } from '@/lib/stocktwits';
 import { saveTrendingSnapshots, getStableSymbols } from '@/lib/symbol-manager';
 import { getStockDataWithOHLCV } from '@/lib/data-fetcher';
 
 async function runTrendingCollection() {
-  const trending = await getTrendingStocks();
-  const snapshotRecords = trending.symbols.map(
-    (symbol: StockTwitsSymbol & { messageVolume?: number; message_volume?: number }) => ({
-      symbol: symbol.symbol,
-      rank: symbol.rank || 0,
-      trendingScore: symbol.trending_score || 0,
-      // prefer explicit messageVolume, then API-provided message_volume, then watchlist_count
-      messageVolume: symbol.messageVolume ?? symbol.message_volume ?? symbol.watchlist_count,
-      bullishCount: symbol.sentiment?.bullish ?? undefined,
-      bearishCount: symbol.sentiment?.bearish ?? undefined,
-      watchlistCount: symbol.watchlist_count,
-    })
-  );
+  const trending: StockTwitsTrendingResponse = await getTrendingStocks();
+  const symbolsTyped: Array<StockTwitsSymbol & { messageVolume?: number; message_volume?: number }> = trending.symbols;
+
+  const snapshotRecords = symbolsTyped.map(symbol => ({
+    symbol: symbol.symbol,
+    rank: symbol.rank || 0,
+    trendingScore: symbol.trending_score || 0,
+    // prefer explicit messageVolume, then API-provided message_volume, then watchlist_count
+    messageVolume: symbol.messageVolume ?? symbol.message_volume ?? symbol.watchlist_count,
+    bullishCount: symbol.sentiment?.bullish ?? undefined,
+    bearishCount: symbol.sentiment?.bearish ?? undefined,
+    watchlistCount: symbol.watchlist_count,
+  }));
 
   await saveTrendingSnapshots(snapshotRecords);
   const currentSymbolList = trending.symbols.map(symbol => symbol.symbol);

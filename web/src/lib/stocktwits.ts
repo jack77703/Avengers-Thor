@@ -26,6 +26,8 @@ export interface StockTwitsSymbol {
     };
     volume?: number;
     intraday_volatility?: number;
+    latestHeadline?: string; // Latest news headline
+    messageVolume?: number; // Enriched message volume
 }
 
 export interface StockTwitsMessage {

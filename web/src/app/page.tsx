@@ -46,7 +46,7 @@ export default async function Home() {
     const data = await getTrendingStocks();
     if (data && data.symbols) {
       const symbols = data.symbols.slice(0, 20);
-      const ohlcvData = await getStockDataForMultipleSymbols(symbols.map(s => s.symbol));
+      const ohlcvData = await getStockDataForMultipleSymbols(symbols.map((s: StockTwitsSymbol) => s.symbol));
       const ohlcvMap = new Map(
         ohlcvData.map(d => [d.symbol, {
           price: d.price,

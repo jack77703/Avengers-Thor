@@ -9,6 +9,7 @@ export interface StockTwitsSymbol {
     percentChange?: number; // Optional camelCase variant
     price?: number; // Enriched with quote
     rank?: number;
+    rankDelta?: number; // Enriched delta vs previous rank
     trending_score?: number;
     previousClosePrice?: number; // From quote enrichment
     sector?: string;

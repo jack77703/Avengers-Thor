@@ -6,8 +6,11 @@ export interface StockTwitsSymbol {
     is_following: boolean;
     watchlist_count: number;
     percent_change?: number; // Added for UI demonstration
+    percentChange?: number; // Optional camelCase variant
+    price?: number; // Enriched with quote
     rank?: number;
     trending_score?: number;
+    previousClosePrice?: number; // From quote enrichment
     sector?: string;
     industry?: string;
     fundamentals?: {

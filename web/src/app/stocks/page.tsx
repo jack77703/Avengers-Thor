@@ -1,0 +1,44 @@
+import { MOCK_STOCKS } from '@/lib/mock-data';
+import { StockCard } from '@/components/stock-card';
+import { getTrendingStocks, StockTwitsSymbol } from '@/lib/stocktwits';
+import { Stock } from '@/lib/types';
+
+function mapStockTwitsToStock(stStock: StockTwitsSymbol): Stock {
+    return {
+        ticker: stStock.symbol,
+        companyName: stStock.title,
+        mentions: stStock.watchlist_count,
+        sentimentScore: 0,
+        lastMentionedAt: new Date().toISOString(),
+    };
+}
+
+export default async function StocksPage() {
+    let stocks: Stock[] = [];
+    try {
+        const data = await getTrendingStocks();
+        if (data && data.symbols) {
+            stocks = data.symbols.map(mapStockTwitsToStock);
+        }
+    } catch (e) {
+        console.error("Failed to fetch StockTwits data", e);
+        stocks = MOCK_STOCKS; // Fallback to mock data if API fails
+    }
+
+    return (
+        <div className="space-y-6 px-4 sm:px-0">
+            <div className="border-b border-gray-200 dark:border-gray-700 pb-5">
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Trending Stocks</h1>
+                <p className="mt-2 text-gray-600 dark:text-gray-400">
+                    Real-time trending stocks from StockTwits.
+                </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                {stocks.map((stock) => (
+                    <StockCard key={stock.ticker} stock={stock} />
+                ))}
+            </div>
+        </div>
+    );
+}

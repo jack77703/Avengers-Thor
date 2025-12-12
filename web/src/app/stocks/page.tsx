@@ -2,14 +2,23 @@ import { MOCK_STOCKS } from '@/lib/mock-data';
 import { StockCard } from '@/components/stock-card';
 import { getTrendingStocks, StockTwitsSymbol } from '@/lib/stocktwits';
 import { Stock } from '@/lib/types';
+import { getStockDataForMultipleSymbols } from '@/lib/data-fetcher';
 
-function mapStockTwitsToStock(stStock: StockTwitsSymbol): Stock {
+function mapStockTwitsToStock(
+    stStock: StockTwitsSymbol,
+    ohlcvMap: Map<string, { price: number; previousClosePrice: number; percentChange: number; volume: number }>
+): Stock {
+    const ohlcv = ohlcvMap.get(stStock.symbol);
     return {
         ticker: stStock.symbol,
         companyName: stStock.title,
         mentions: stStock.watchlist_count,
         sentimentScore: 0,
         lastMentionedAt: new Date().toISOString(),
+        price: ohlcv?.price ?? stStock.price,
+        percentChange: ohlcv?.percentChange ?? stStock.percent_change ?? stStock.percentChange,
+        previousClosePrice: ohlcv?.previousClosePrice,
+        volume: ohlcv?.volume ?? stStock.volume,
     };
 }
 
@@ -18,7 +27,18 @@ export default async function StocksPage() {
     try {
         const data = await getTrendingStocks();
         if (data && data.symbols) {
-            stocks = data.symbols.map(mapStockTwitsToStock);
+            const symbols = data.symbols;
+            const ohlcvData = await getStockDataForMultipleSymbols(symbols.map(s => s.symbol));
+            const ohlcvMap = new Map(
+                ohlcvData.map(d => [d.symbol, {
+                    price: d.price,
+                    previousClosePrice: d.previousClosePrice,
+                    percentChange: d.percentChange,
+                    volume: d.volume,
+                }])
+            );
+
+            stocks = symbols.map(s => mapStockTwitsToStock(s, ohlcvMap));
         }
     } catch (e) {
         console.error("Failed to fetch StockTwits data", e);

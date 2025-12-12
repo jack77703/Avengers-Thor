@@ -2,17 +2,23 @@ import { StockCard } from '@/components/stock-card';
 import { ArrowRight, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { getTrendingStocks, StockTwitsSymbol } from '@/lib/stocktwits';
+import { getStockDataForMultipleSymbols } from '@/lib/data-fetcher';
 
 // Helper to map StockTwits data to our Stock interface
-function mapStockTwitsToStock(stStock: StockTwitsSymbol) {
+function mapStockTwitsToStock(
+  stStock: StockTwitsSymbol,
+  ohlcvMap: Map<string, { price: number; previousClosePrice: number; percentChange: number; volume: number }>
+) {
+  const ohlcv = ohlcvMap.get(stStock.symbol);
   return {
     ticker: stStock.symbol,
     companyName: stStock.title,
     watchers: stStock.watchlist_count || 0,
     sentimentScore: 0, // Placeholder as trending endpoint doesn't give sentiment
     lastMentionedAt: new Date().toISOString(),
-    price: stStock.price,
-    percentChange: stStock.percent_change,
+    price: ohlcv?.price ?? stStock.price,
+    percentChange: ohlcv?.percentChange ?? stStock.percent_change ?? stStock.percentChange,
+    previousClosePrice: ohlcv?.previousClosePrice,
     rank: stStock.rank,
     rankDelta: stStock.rankDelta, // Added mapping
     trendingScore: stStock.trending_score,
@@ -22,7 +28,7 @@ function mapStockTwitsToStock(stStock: StockTwitsSymbol) {
     hasNews: stStock.has_news,
     latestHeadline: stStock.latestHeadline, // Added mapping
     sentiment: stStock.sentiment,
-    volume: stStock.volume,
+    volume: ohlcv?.volume ?? stStock.volume,
     messageVolume: stStock.messageVolume, // Added mapping
     intradayVolatility: stStock.intraday_volatility
   };
@@ -39,7 +45,18 @@ export default async function Home() {
   try {
     const data = await getTrendingStocks();
     if (data && data.symbols) {
-      trendingStocks = data.symbols.slice(0, 20).map(mapStockTwitsToStock); // Show all 20 symbols
+      const symbols = data.symbols.slice(0, 20);
+      const ohlcvData = await getStockDataForMultipleSymbols(symbols.map(s => s.symbol));
+      const ohlcvMap = new Map(
+        ohlcvData.map(d => [d.symbol, {
+          price: d.price,
+          previousClosePrice: d.previousClosePrice,
+          percentChange: d.percentChange,
+          volume: d.volume,
+        }])
+      );
+
+      trendingStocks = symbols.map(s => mapStockTwitsToStock(s, ohlcvMap));
       marketStatus = data.marketStatus;
     }
   } catch (e) {

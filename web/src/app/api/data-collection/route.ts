@@ -96,19 +96,24 @@ export async function GET(request: NextRequest) {
         try {
           const quote = await getFinnhubQuote(symbol);
           if (quote) {
+            const previousClose = quote.previousClosePrice ?? quote.open ?? quote.price ?? 0;
+            const percentChange = previousClose > 0
+              ? ((quote.price - previousClose) / previousClose) * 100
+              : 0;
+
             // Convert quote to OHLCV format (today's data)
             const today = new Date().toISOString().split('T')[0];
             await saveBatchOHLCVData([
               {
                 symbol,
                 date: today,
-                open: quote.open,
-                high: quote.high,
-                low: quote.low,
-                close: quote.price,
+                open_price: quote.open,
+                high_price: quote.high,
+                low_price: quote.low,
+                close_price: quote.price,
                 volume: quote.volume,
-                previousClose: quote.previousClosePrice,
-                percentChange: quote.percentChange,
+                previous_close: previousClose,
+                percent_change: percentChange,
               },
             ]);
             results.results.ohlcv[symbol] = 'Updated';

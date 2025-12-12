@@ -73,27 +73,33 @@ export async function getStockDataWithOHLCV(symbol: string): Promise<StockDataWi
       return null;
     }
 
+    // Defensive defaults when Finnhub omits previous close
+    const previousClose = quote.previousClosePrice ?? quote.open ?? quote.price ?? 0;
+    const percentChange = previousClose > 0
+      ? ((quote.price - previousClose) / previousClose) * 100
+      : 0;
+
     // Step 3: Save to database for future use
     console.log(`💾 Saving ${symbol} to database`);
     await saveBatchOHLCVData([
       {
         symbol,
         date: today,
-        open: quote.open,
-        high: quote.high,
-        low: quote.low,
-        close: quote.price,
+        open_price: quote.open,
+        high_price: quote.high,
+        low_price: quote.low,
+        close_price: quote.price,
         volume: quote.volume,
-        previousClose: quote.previousClosePrice,
-        percentChange: quote.percentChange,
+        previous_close: previousClose,
+        percent_change: percentChange,
       },
     ]);
 
     return {
       symbol,
       price: quote.price,
-      previousClosePrice: quote.previousClosePrice,
-      percentChange: quote.percentChange,
+      previousClosePrice: previousClose,
+      percentChange,
       open: quote.open,
       high: quote.high,
       low: quote.low,
@@ -157,6 +163,11 @@ export async function refreshStockData(symbol: string): Promise<StockDataWithOHL
     return null;
   }
 
+  const previousClose = quote.previousClosePrice ?? quote.open ?? quote.price ?? 0;
+  const percentChange = previousClose > 0
+    ? ((quote.price - previousClose) / previousClose) * 100
+    : 0;
+
   // Try to get today's OHLCV from database
   const today = new Date().toISOString().split('T')[0];
   const { data: dbData } = await supabase
@@ -169,8 +180,8 @@ export async function refreshStockData(symbol: string): Promise<StockDataWithOHL
   return {
     symbol,
     price: quote.price,
-    previousClosePrice: quote.previousClosePrice,
-    percentChange: quote.percentChange,
+    previousClosePrice: previousClose,
+    percentChange,
     open: dbData?.open_price || quote.open,
     high: dbData?.high_price || quote.high,
     low: dbData?.low_price || quote.low,

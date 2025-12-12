@@ -14,13 +14,13 @@ import {
 } from '@/lib/finnhub-comprehensive';
 import { saveBatchOHLCVData } from '@/lib/ohlcv';
 import { getFinnhubQuote } from '@/lib/finnhub';
-import { getTrendingStocks } from '@/lib/stocktwits';
+import { getTrendingStocks, type StockTwitsSymbol } from '@/lib/stocktwits';
 import { saveTrendingSnapshots, getStableSymbols } from '@/lib/symbol-manager';
 import { getStockDataWithOHLCV } from '@/lib/data-fetcher';
 
 async function runTrendingCollection() {
   const trending = await getTrendingStocks();
-  const snapshotRecords = trending.symbols.map(symbol => ({
+  const snapshotRecords = trending.symbols.map((symbol: StockTwitsSymbol & { messageVolume?: number }) => ({
     symbol: symbol.symbol,
     rank: symbol.rank || 0,
     trendingScore: symbol.trending_score || 0,

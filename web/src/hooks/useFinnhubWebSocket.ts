@@ -64,22 +64,20 @@ export function useFinnhubWebSocket(): UseFinnhubWebSocketReturn {
 
                     if (message.type === 'trade' && message.data) {
                         // message.data is an array of trades
-                        message.data.forEach((trade: any) => {
-                            const prevPriceUpdate = prices.get(trade.s);
+                        message.data.forEach((trade: { s: string; p: number; t: number }) => {
                             const currentPrice = trade.p;
-                            
+
                             // Get the previous close price from the reference map
                             const previousClosePrice = priceReferenceMap.get(trade.s) || currentPrice;
-                            
+
                             // Calculate percent change from previous close price
-                            const percentChange = previousClosePrice > 0 
+                            const percentChange = previousClosePrice > 0
                                 ? ((currentPrice - previousClosePrice) / previousClosePrice) * 100
                                 : 0;
-                            
-                            // Calculate point change from previous price in WebSocket stream
-                            const change = prevPriceUpdate ? currentPrice - prevPriceUpdate.price : 0;
 
                             setPrices(prev => {
+                                const previousUpdate = prev.get(trade.s);
+                                const change = previousUpdate ? currentPrice - previousUpdate.price : 0;
                                 const updated = new Map(prev);
                                 updated.set(trade.s, {
                                     symbol: trade.s,
@@ -127,6 +125,8 @@ export function useFinnhubWebSocket(): UseFinnhubWebSocketReturn {
         // Small delay to ensure component is mounted
         const timer = setTimeout(connect, 100);
 
+        const subscribedSymbolsSet = subscribedSymbolsRef.current;
+
         // Cleanup on unmount
         return () => {
             clearTimeout(timer);
@@ -134,8 +134,9 @@ export function useFinnhubWebSocket(): UseFinnhubWebSocketReturn {
                 clearTimeout(reconnectTimeoutRef.current);
             }
             if (wsRef.current) {
+                const subsAtCleanup = Array.from(subscribedSymbolsSet);
                 // Unsubscribe from all symbols
-                subscribedSymbolsRef.current.forEach(symbol => {
+                subsAtCleanup.forEach(symbol => {
                     wsRef.current?.send(JSON.stringify({ type: 'unsubscribe', symbol }));
                 });
                 wsRef.current.close();

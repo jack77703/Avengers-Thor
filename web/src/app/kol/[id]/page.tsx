@@ -26,6 +26,7 @@ export default async function KOLProfilePage({ params }: PageProps) {
                 <div className="flex items-start space-x-6">
                     <div className="w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-full flex-shrink-0 overflow-hidden">
                         {kol.avatarUrl ? (
+                            /* eslint-disable-next-line @next/next/no-img-element */
                             <img src={kol.avatarUrl} alt={kol.name} className="w-full h-full object-cover" />
                         ) : (
                             <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500 font-bold text-3xl">

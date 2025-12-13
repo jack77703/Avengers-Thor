@@ -393,7 +393,16 @@ export async function getInsiderTransactions(symbol: string): Promise<InsiderTra
     const data = await response.json();
     if (!data.data || !Array.isArray(data.data)) return [];
 
-    return data.data.map((tx: any) => ({
+    return data.data.map((tx: {
+      name: string;
+      title: string;
+      transactionDate: string;
+      transactionType: string;
+      shares: number;
+      price: number;
+      change: number;
+      filingDate: string;
+    }) => ({
       symbol,
       insiderName: tx.name,
       title: tx.title,
@@ -703,8 +712,8 @@ export async function collectEconomicData(): Promise<boolean> {
 /**
  * Batch collect all data for multiple stocks
  */
-export async function collectDataForMultipleStocks(symbols: string[]): Promise<Map<string, any>> {
-  const results = new Map();
+export async function collectDataForMultipleStocks(symbols: string[]): Promise<Map<string, unknown>> {
+  const results = new Map<string, unknown>();
 
   for (const symbol of symbols) {
     const data = await collectAllStockData(symbol);

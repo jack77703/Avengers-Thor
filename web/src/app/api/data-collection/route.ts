@@ -66,7 +66,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(trendingResult, { status: 200 });
     }
 
-    const results: any = {
+    const results: {
+      timestamp: string;
+      action: string;
+      symbols: string[];
+      types: string[];
+      results: Record<string, unknown>;
+    } = {
       timestamp: new Date().toISOString(),
       action,
       symbols,
@@ -155,13 +161,6 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { symbols = ['AAPL', 'TSLA'], action = 'all' } = body;
-
-    const results = {
-      timestamp: new Date().toISOString(),
-      action,
-      symbols,
-      status: 'Processing...',
-    };
 
     // Delegate to GET logic
     const url = new URL(request.url);

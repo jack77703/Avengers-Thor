@@ -1,5 +1,5 @@
 import { Stock } from '@/lib/types';
-import { ArrowUpRight, ArrowDownRight, Minus, Clock, Moon, Sun } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, Clock, Moon, Sun } from 'lucide-react';
 
 interface StockCardProps {
     stock: Stock;

@@ -1,5 +1,4 @@
 import { supabase } from './supabase';
-import { getFinnhubQuote } from './finnhub';
 
 export interface OHLCVData {
     id?: number;

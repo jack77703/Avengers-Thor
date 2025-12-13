@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { StockTwitsTrendingResponse } from './stocktwits';
+import { StockTwitsTrendingResponse, StockTwitsSymbol } from './stocktwits';
 
 // --- Types ---
 export interface HistorySnapshot {
@@ -23,7 +23,7 @@ export async function saveTrendingData(data: StockTwitsTrendingResponse) {
     const now = Date.now();
 
     // Prepare batch insert data with trending score
-    const snapshots = data.symbols.map((stock: any) => ({
+    const snapshots = data.symbols.map((stock: StockTwitsSymbol) => ({
         symbol: stock.symbol,
         price: stock.price || null,
         percent_change: stock.percentChange || null,
@@ -48,19 +48,22 @@ export async function saveTrendingData(data: StockTwitsTrendingResponse) {
     }
 }
 
-export function calculateZScore(symbol: string, currentVolume: number): number {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function calculateZScore(_symbol: string, _currentVolume: number): number {
     // Z-Score calculation will need to fetch from Supabase
     // For now, return 0 until we implement async version
     return 0;
 }
 
-export function getVolumeHistory(symbol: string): number[] {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function getVolumeHistory(_symbol: string): number[] {
     // Volume history will need to fetch from Supabase
     // For now, return empty array until we implement async version
     return [];
 }
 
-export function getPreviousRank(symbol: string): number | null {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function getPreviousRank(_symbol: string): number | null {
     // Previous rank will need to fetch from Supabase
     // For now, return null until we implement async version
     return null;

@@ -1,5 +1,4 @@
-import { StockCard } from '@/components/stock-card';
-import { ArrowRight, RefreshCw } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { getTrendingStocks, StockTwitsSymbol } from '@/lib/stocktwits';
 import { getStockDataForMultipleSymbols } from '@/lib/data-fetcher';
@@ -56,7 +55,7 @@ export default async function Home() {
         }])
       );
 
-      trendingStocks = symbols.map(s => mapStockTwitsToStock(s, ohlcvMap));
+      trendingStocks = symbols.map((s: StockTwitsSymbol) => mapStockTwitsToStock(s, ohlcvMap));
       marketStatus = data.marketStatus;
     }
   } catch (e) {

@@ -89,7 +89,7 @@ async function getStockTwitsExtendedData(symbol: string) {
         let bullish = 0;
         let bearish = 0;
 
-        messages.forEach((msg: any) => {
+        messages.forEach((msg: { entities?: { sentiment?: { basic?: 'Bullish' | 'Bearish' }}}) => {
             const s = msg.entities?.sentiment?.basic;
             if (s === 'Bullish') bullish++;
             if (s === 'Bearish') bearish++;
@@ -144,8 +144,8 @@ export async function getTrendingStocks() {
 
         // Fetch quotes and extended data in parallel (NEWS DISABLED to save API quota)
         const [quotes, extendedResults] = await Promise.all([
-            Promise.all(symbolsToFetch.map((s: any) => getFinnhubQuote(s.symbol))),
-            Promise.all(symbolsToFetch.map((s: any) => getStockTwitsExtendedData(s.symbol))) // Use StockTwits for sentiment & fallback data
+            Promise.all(symbolsToFetch.map((s: StockTwitsSymbol) => getFinnhubQuote(s.symbol))),
+            Promise.all(symbolsToFetch.map((s: StockTwitsSymbol) => getStockTwitsExtendedData(s.symbol))) // Use StockTwits for sentiment & fallback data
         ]);
 
         // Map quotes back to symbols
@@ -153,7 +153,7 @@ export async function getTrendingStocks() {
         const extendedMap = new Map(extendedResults.map((e, i) => [symbolsToFetch[i].symbol, e]));
 
         // Use Promise.all to fetch all historical data concurrently
-        const enrichedSymbols = await Promise.all(data.symbols.map(async (s: any, index: number) => {
+        const enrichedSymbols = await Promise.all(data.symbols.map(async (s: StockTwitsSymbol, index: number) => {
             const quote = quoteMap.get(s.symbol);
             const extendedData = extendedMap.get(s.symbol);
             const sentiment = extendedData?.sentiment;

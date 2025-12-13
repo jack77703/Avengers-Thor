@@ -12,6 +12,7 @@ export function KOLCard({ kol }: KOLCardProps) {
                 <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-full flex-shrink-0 overflow-hidden">
                         {kol.avatarUrl ? (
+                            /* eslint-disable-next-line @next/next/no-img-element */
                             <img src={kol.avatarUrl} alt={kol.name} className="w-full h-full object-cover" />
                         ) : (
                             <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500 font-bold text-xl">

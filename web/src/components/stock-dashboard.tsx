@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Stock } from '@/lib/types';
 import { StockCard } from './stock-card';
 import { StockTable } from './stock-table';
-import { ArrowUpDown, ArrowUp, ArrowDown, LayoutGrid, List } from 'lucide-react';
+import { ArrowUp, ArrowDown, LayoutGrid, List } from 'lucide-react';
 import { useFinnhubWebSocket } from '@/hooks/useFinnhubWebSocket';
 
 interface StockDashboardProps {
@@ -13,6 +13,31 @@ interface StockDashboardProps {
 
 type SortOption = 'rank' | 'watchers' | 'trending' | 'marketCap' | 'percentChange';
 type ViewMode = 'card' | 'table';
+
+type SortButtonProps = {
+    option: SortOption;
+    label: string;
+    active: boolean;
+    sortOrder: 'asc' | 'desc';
+    onSelect: (option: SortOption) => void;
+};
+
+function SortButton({ option, label, active, sortOrder, onSelect }: SortButtonProps) {
+    return (
+        <button
+            onClick={() => onSelect(option)}
+            className={`px-3 py-1.5 text-sm font-medium rounded-full transition-colors flex items-center gap-1 ${active
+                ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+                : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                }`}
+        >
+            {label}
+            {active && (
+                sortOrder === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+            )}
+        </button>
+    );
+}
 
 export function StockDashboard({ initialStocks }: StockDashboardProps) {
     const [stocks, setStocks] = useState<Stock[]>(initialStocks);
@@ -36,6 +61,7 @@ export function StockDashboard({ initialStocks }: StockDashboardProps) {
     useEffect(() => {
         if (prices.size === 0) return;
 
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setStocks(prevStocks =>
             prevStocks.map(stock => {
                 const livePrice = prices.get(stock.ticker);
@@ -103,31 +129,16 @@ export function StockDashboard({ initialStocks }: StockDashboardProps) {
         setStocks(sorted);
     };
 
-    const SortButton = ({ option, label }: { option: SortOption, label: string }) => (
-        <button
-            onClick={() => handleSort(option)}
-            className={`px-3 py-1.5 text-sm font-medium rounded-full transition-colors flex items-center gap-1 ${sortBy === option
-                ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-                : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
-                }`}
-        >
-            {label}
-            {sortBy === option && (
-                sortOrder === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
-            )}
-        </button>
-    );
-
     return (
         <div>
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 <div className="flex flex-wrap gap-2">
                     <span className="text-sm font-medium text-gray-500 dark:text-gray-400 self-center mr-2">Sort by:</span>
-                    <SortButton option="rank" label="Rank" />
-                    <SortButton option="trending" label="Trending Score" />
-                    <SortButton option="watchers" label="Watchers" />
-                    <SortButton option="marketCap" label="Market Cap" />
-                    <SortButton option="percentChange" label="% Change" />
+                    <SortButton option="rank" label="Rank" active={sortBy === 'rank'} sortOrder={sortOrder} onSelect={handleSort} />
+                    <SortButton option="trending" label="Trending Score" active={sortBy === 'trending'} sortOrder={sortOrder} onSelect={handleSort} />
+                    <SortButton option="watchers" label="Watchers" active={sortBy === 'watchers'} sortOrder={sortOrder} onSelect={handleSort} />
+                    <SortButton option="marketCap" label="Market Cap" active={sortBy === 'marketCap'} sortOrder={sortOrder} onSelect={handleSort} />
+                    <SortButton option="percentChange" label="% Change" active={sortBy === 'percentChange'} sortOrder={sortOrder} onSelect={handleSort} />
 
                     {/* WebSocket Connection Status */}
                     {isConnected && (

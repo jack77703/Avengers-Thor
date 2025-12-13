@@ -66,12 +66,18 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(trendingResult, { status: 200 });
     }
 
+    type ResultBuckets = {
+      stocks?: Record<string, unknown>;
+      ohlcv?: Record<string, unknown>;
+      economic?: unknown;
+    };
+
     const results: {
       timestamp: string;
       action: string;
       symbols: string[];
       types: string[];
-      results: Record<string, unknown>;
+      results: ResultBuckets;
     } = {
       timestamp: new Date().toISOString(),
       action,

@@ -70,8 +70,8 @@ export const MOCK_STOCKS: Stock[] = STOCKS.map(ticker => {
     return {
         ticker,
         companyName: ticker, // Simplified
-        mentions,
+        watchers: mentions,
         sentimentScore: (Math.random() * 2) - 1,
-        lastMentionedAt: new Date().toISOString()
-    }
-}).sort((a, b) => b.mentions - a.mentions);
+        lastMentionedAt: new Date().toISOString(),
+    };
+}).sort((a, b) => b.watchers - a.watchers);

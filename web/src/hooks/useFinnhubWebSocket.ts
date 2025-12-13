@@ -25,7 +25,7 @@ export function useFinnhubWebSocket(): UseFinnhubWebSocketReturn {
     const [prices, setPrices] = useState<Map<string, PriceUpdate>>(new Map());
     const [isConnected, setIsConnected] = useState(false);
     const wsRef = useRef<WebSocket | null>(null);
-    const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
+    const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const subscribedSymbolsRef = useRef<Set<string>>(new Set());
 
     useEffect(() => {

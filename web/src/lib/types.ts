@@ -46,12 +46,5 @@ export interface Stock {
     marketCap?: number;
     volume?: number;
     intradayVolatility?: number; // Calculated as (High - Low) / Open
-
-    // Advanced Metrics
-    messageVolume?: number; // StockTwits message volume (last 24h or current stream count)
-    messageVolumeHistory?: number[]; // For sparkline (mock/real)
-    zScore?: number; // 24h delta mentions z-score
     newsImpact?: 'High' | 'Medium' | 'Low' | 'None';
-    lastUpdated?: string; // ISO timestamp
-    confidence?: number; // 0-1 source confidence
 }

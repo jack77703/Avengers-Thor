@@ -91,7 +91,7 @@ export function StockTable({ stocks }: StockTableProps) {
                 </thead>
                 <tbody>
                     {sortedStocks.map((stock, index) => (
-                        <tr key={stock.ticker || stock.symbol || index} className="border-b dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                        <tr key={stock.ticker || `row-${index}`} className="border-b dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                             {/* Rank */}
                             <td className="px-4 py-3 font-medium">
                                 <div className="flex items-center gap-1">

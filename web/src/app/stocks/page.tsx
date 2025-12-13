@@ -12,7 +12,7 @@ function mapStockTwitsToStock(
     return {
         ticker: stStock.symbol,
         companyName: stStock.title,
-        mentions: stStock.watchlist_count,
+        watchers: stStock.watchlist_count ?? 0,
         sentimentScore: 0,
         lastMentionedAt: new Date().toISOString(),
         price: ohlcv?.price ?? stStock.price,
@@ -28,7 +28,7 @@ export default async function StocksPage() {
         const data = await getTrendingStocks();
         if (data && data.symbols) {
             const symbols = data.symbols;
-            const ohlcvData = await getStockDataForMultipleSymbols(symbols.map(s => s.symbol));
+            const ohlcvData = await getStockDataForMultipleSymbols(symbols.map((s: StockTwitsSymbol) => s.symbol));
             const ohlcvMap = new Map(
                 ohlcvData.map(d => [d.symbol, {
                     price: d.price,
@@ -38,7 +38,7 @@ export default async function StocksPage() {
                 }])
             );
 
-            stocks = symbols.map(s => mapStockTwitsToStock(s, ohlcvMap));
+            stocks = symbols.map((s: StockTwitsSymbol) => mapStockTwitsToStock(s, ohlcvMap));
         }
     } catch (e) {
         console.error("Failed to fetch StockTwits data", e);
